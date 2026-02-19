@@ -140,7 +140,7 @@ def root(request: Request):
 
 @app.get("/picture.png")
 async def get_picture():
-    picture_path = os.path.join(os.path.dirname(BASE_DIR), "picture.png")
+    picture_path = os.path.join(os.path.dirname(BASE_DIR), "docs", "picture.png")
     if os.path.exists(picture_path):
         with open(picture_path, "rb") as f:
             return Response(content=f.read(), media_type="image/png")
