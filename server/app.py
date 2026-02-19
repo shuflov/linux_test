@@ -1,11 +1,18 @@
 from fastapi import FastAPI, UploadFile, File, Request, Form
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageDraw, ImageFont
 import io
 import uvicorn
 
+import os
+
 app = FastAPI()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
 
 ASCII_CHARS = ['@', '#', 'S', '%', '?', '*', '+', ';', ':', ',', '.']
 FONT_SIZE = 12
@@ -125,11 +132,19 @@ async def download(
     
     return {"error": "Unknown format"}
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/picture.png")
+async def get_picture():
+    picture_path = os.path.join(os.path.dirname(BASE_DIR), "picture.png")
+    if os.path.exists(picture_path):
+        with open(picture_path, "rb") as f:
+            return Response(content=f.read(), media_type="image/png")
+    return Response(status_code=404)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
