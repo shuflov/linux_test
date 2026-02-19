@@ -181,19 +181,21 @@
             img.src = URL.createObjectURL(file);
         }
         
-        // Auto-load picture.png on page load (optional - silently fails if not found)
+        // Auto-load picture.png on page load
         window.addEventListener('load', () => {
             fetch('picture.png')
                 .then(response => {
+                    console.log('picture.png fetch status:', response.status);
                     if (!response.ok) throw new Error('No picture');
                     return response.blob();
                 })
                 .then(blob => {
+                    console.log('picture.png loaded, size:', blob.size);
                     const file = new File([blob], 'picture.png', { type: 'image/png' });
                     loadImageFromFile(file);
                 })
-                .catch(() => {
-                    // Silently fail - no default image
+                .catch(err => {
+                    console.log('No default picture to load:', err.message);
                 });
         });
         
