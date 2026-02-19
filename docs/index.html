@@ -107,10 +107,21 @@
     <script>
         const ASCII_CHARS = ['@', '#', 'S', '%', '?', '*', '+', ';', ':', ',', '.'];
         let currentAscii = '';
+        let loadedImage = null;
         
         document.getElementById('widthSlider').addEventListener('input', (e) => {
             document.getElementById('widthValue').textContent = e.target.value;
+            if (loadedImage) {
+                convertAndDisplay();
+            }
         });
+        
+        function convertAndDisplay() {
+            const width = parseInt(document.getElementById('widthSlider').value);
+            currentAscii = convertToAscii(loadedImage, width);
+            document.getElementById('result').innerHTML = '<pre>' + currentAscii + '</pre>';
+            document.getElementById('downloadOptions').classList.add('visible');
+        }
         
         function convertToAscii(img, width) {
             const canvas = document.createElement('canvas');
@@ -140,7 +151,6 @@
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const fileInput = document.getElementById('fileInput');
-            const width = parseInt(document.getElementById('widthSlider').value);
             const result = document.getElementById('result');
             
             if (!fileInput.files[0]) {
@@ -156,16 +166,31 @@
                 return;
             }
             
+            loadImageFromFile(file);
+        });
+        
+        function loadImageFromFile(file) {
             const img = new Image();
             img.onload = () => {
-                currentAscii = convertToAscii(img, width);
-                result.innerHTML = '<pre>' + currentAscii + '</pre>';
-                document.getElementById('downloadOptions').classList.add('visible');
+                loadedImage = img;
+                convertAndDisplay();
             };
             img.onerror = () => {
-                result.innerHTML = '<p style="color: red">Error loading image</p>';
+                document.getElementById('result').innerHTML = '<p style="color: red">Error loading image</p>';
             };
             img.src = URL.createObjectURL(file);
+        }
+        
+        // Auto-load picture.png on page load
+        window.addEventListener('load', () => {
+            fetch('picture.png')
+                .then(response => response.blob())
+                .then(blob => {
+                    const file = new File([blob], 'picture.png', { type: 'image/png' });
+                    loadImageFromFile(file);
+                    document.getElementById('fileInput').files = new DataTransfer().items.add(file).files;
+                })
+                .catch(() => {});
         });
         
         function downloadFile(content, filename, type) {
