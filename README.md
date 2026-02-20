@@ -21,7 +21,7 @@ server/         → Python backend (requires Python server)
 
 The `docs/` folder contains a fully client-side version that runs in the browser without any server.
 
-1. **Use live:** https://shuflov.github.io/animation/
+1. **Use live:** https://shuflov.github.io/ascii_converter/
 
 2. **Run locally:** Just open `docs/index.html` in any browser
 
